@@ -43,14 +43,8 @@ function clearDb(){
 
 //clearDb();
 
-function drawGrid(){
+function drawGrid(grid){
   var htmlString = ""
-
-  console.log("idk")
-  get(child(dbRef, '/')).then((snapshot) => {
-    console.log("ik")
-
-    var grid = snapshot.val()["grid"]
 
     for(let i=0; i<grid.length; i++){
       //console.log(grid[i], i)
@@ -72,9 +66,6 @@ function drawGrid(){
     for (let i=0; i< gridElements.length; i++){
       gridElements[i].addEventListener("click", function(){
 
-        console.log(gridElements[i].id)
-        console.log("max", grid[gridElements[i].id]["maxValue"])
-
         isClicked(i)
         // currentPlayer = (currentPlayer+1)%3
         // console.log("p",currentPlayer)
@@ -83,24 +74,34 @@ function drawGrid(){
     )
   }
 
-   })
+   //})
+   //sleep(2000)
   }
 
 function isClicked(i){
-  console.log("juskik")
-
-
+  console.log("GETTING DATA")
   get(child(dbRef, '/')).then((snapshot) => {
+    console.log("GOT DATA")
+
     
     var data = snapshot.val()
     var currentPlayer = data["currentPlayer"]
     var grid = data["grid"]
-    console.log("kok", grid[0])
     
-
     if (grid[i]["value"]!=0  && grid[i]["colour"] != currentPlayer){
       return;
     }
+
+    grid[i]["colour"] = currentPlayer
+    
+    currentPlayer = (currentPlayer+1)%3
+
+    set(ref(database, "/currentPlayer"), currentPlayer)
+
+    // if (parseInt(grid[i]["value"])==0 ){
+    //   grid[i]["colour"] == currentPlayer
+    // }
+
     
     grid[i].value +=1;
 
@@ -110,22 +111,28 @@ function isClicked(i){
     //cur play ++
   })
 
-
-  console.log("lol", i)
 }
 
+
+window.onload(
+get(child(dbRef, '/')).then((snapshot) => {
+var grid = snapshot.val()["grid"];
+drawGrid(grid);
+console.log("LOADED")
+
+}))
 // drawGrid() ////////////////////
 
-window.onload(drawGrid())
+//window.onload(drawGrid())///////
 
 function check(i, grid){
-  console.log("abab")
 //Write to fb
 set(ref(database, "/grid"), grid)
 
 //delay
 
-drawGrid()
+
+drawGrid(grid)
 // for(let time=0;time<300;time++){}
 //delay
   if (grid[i]["value"] == grid[i]["maxValue"] ){
@@ -167,23 +174,17 @@ drawGrid()
 
 }
 
+function sleep(t1){
+  var t2 = new Date().valueOf()
+  while(new Date().valueOf() < t1 + t2){
 
-// var htmlthingy = "";
-// for (let i=0; i<36;i++){
-//     htmlthingy += '<div class="square fullImg"><img src="images/blue 1.png" /></div>'
-
-// }
-
-// document.getElementsByClassName("grid")[0].innerHTML = htmlthingy;
-
-
-get(child(dbRef, '/')).then((snapshot) => {
-   
-  })
+  }
+}
 
 // set(ref(database, "/grid/2"), {
 //     colour:0, value:2
 // })
+
 
 
 
@@ -196,9 +197,8 @@ get(child(dbRef, '/')).then((snapshot) => {
 // console.log(lol)
 
 
-
-
-
+// sum of values>num of players && only one colour
+// show who's move
 
 
 
@@ -243,3 +243,29 @@ get(child(dbRef, '/')).then((snapshot) => {
         <div class="square fullImg"><img src="images/11.png" /></div>
         <div class="square fullImg"><img src="images/02.png" /></div>
 */
+
+function isGameOver(grid){
+  var flag = 0;
+  var totalVal = 0;
+  var prevColour = -1;
+
+  for(let i =0; i<grid.length;i++){
+    totalVal += grid[i]["value"]
+
+    if (grid[i]["value"] != 0 && prevColour == -1){
+      prevColour = grid[i]["colour"]
+    }
+    else if (grid[i]["value"] != 0 && grid[i]["colour"] != prevColour){
+      flag = 1;
+
+    }
+    //two diff  colours
+    
+  }
+  //sum of values >3  AND all same colour
+
+  if (totalVal>3 && !(flag)){
+    console.log("GAMEOVER")
+  }
+
+}
