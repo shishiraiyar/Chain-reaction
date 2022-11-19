@@ -46,11 +46,14 @@ function clearDb(){
 function drawGrid(){
   var htmlString = ""
 
+  console.log("idk")
   get(child(dbRef, '/')).then((snapshot) => {
+    console.log("ik")
+
     var grid = snapshot.val()["grid"]
 
     for(let i=0; i<grid.length; i++){
-      console.log(grid[i], i)
+      //console.log(grid[i], i)
       
       var imgFile = ""
       if (grid[i]["value"] != 0) {
@@ -84,12 +87,16 @@ function drawGrid(){
   }
 
 function isClicked(i){
+  console.log("juskik")
+
 
   get(child(dbRef, '/')).then((snapshot) => {
     
     var data = snapshot.val()
     var currentPlayer = data["currentPlayer"]
     var grid = data["grid"]
+    console.log("kok", grid[0])
+    
 
     if (grid[i]["value"]!=0  && grid[i]["colour"] != currentPlayer){
       return;
@@ -107,9 +114,20 @@ function isClicked(i){
   console.log("lol", i)
 }
 
-drawGrid()
+// drawGrid() ////////////////////
+
+window.onload(drawGrid())
 
 function check(i, grid){
+  console.log("abab")
+//Write to fb
+set(ref(database, "/grid"), grid)
+
+//delay
+
+drawGrid()
+// for(let time=0;time<300;time++){}
+//delay
   if (grid[i]["value"] == grid[i]["maxValue"] ){
     grid[i]["value"] = 0;
 
